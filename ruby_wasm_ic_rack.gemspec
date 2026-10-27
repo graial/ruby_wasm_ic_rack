@@ -11,4 +11,5 @@ Gem::Specification.new do |spec|
   spec.license               = 'MIT'
   spec.platform              = Gem::Platform::RUBY
   spec.required_ruby_version = '>= 3.3.3'
+  spec.files = Dir["lib/**/*.rb", "LICENSE", "README.md"]
 end

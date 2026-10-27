@@ -1,4 +1,4 @@
-# ic_rack
+# ruby_wasm_ic_rack
 
 Serve a [Rack](https://github.com/rack/rack) app from a Ruby canister on the
 Internet Computer, through the IC HTTP gateway. For canisters packed by
@@ -14,14 +14,14 @@ A canister has no `bundle install`. Carry the gem's files in your Application,
 as you carry Rack:
 
 ```bash
-gem fetch ic_rack && gem unpack ic_rack-*.gem
-cp -r ic_rack-*/lib my_app/vendor/ic_rack
+gem fetch ruby_wasm_ic_rack && gem unpack ruby_wasm_ic_rack-*.gem
+cp -r ruby_wasm_ic_rack-*/lib my_app/vendor/ruby_wasm_ic_rack
 ```
 
 ```ruby
 # app.rb
-$LOAD_PATH.unshift(File.join(__dir__, "vendor/ic_rack"))
-require "ic_rack"
+$LOAD_PATH.unshift(File.join(__dir__, "vendor/ruby_wasm_ic_rack"))
+require "ruby_wasm_ic_rack"
 ```
 
 To move to a newer version, unpack it and copy its `lib/` again.
@@ -55,8 +55,8 @@ Then hand both to your app:
 # app.rb
 APP = ->(env) { [200, { "content-type" => "text/plain" }, ["hello from #{env['PATH_INFO']}"]] }
 
-def http_request(req) = IcRack.query(APP, req)
-def http_request_update(req) = IcRack.update(APP, req)
+def http_request(req) = RubyWasmIcRack.query(APP, req)
+def http_request_update(req) = RubyWasmIcRack.update(APP, req)
 ```
 
 ## What it does
@@ -69,17 +69,17 @@ def http_request_update(req) = IcRack.update(APP, req)
   `"\n"` (Rack 3), goes out as one header each, so two `set-cookie` headers
   arrive as two. The body is joined and closed.
 - **Upgrades.** The gateway calls `http_request` as a query, and a query keeps
-  nothing it writes. So `IcRack.query` answers only `GET`, `HEAD` and `OPTIONS`
+  nothing it writes. So `RubyWasmIcRack.query` answers only `GET`, `HEAD` and `OPTIONS`
   and asks the gateway to upgrade everything else, which then calls
   `http_request_update` through consensus. A `GET` that writes says so with the
   response header `x-ic-upgrade` (any value); the query upgrades it, and the
   header is never sent on.
 - **`rack.input`** is a small reader of its own (`read`, `gets`, `each`,
   `rewind`). For a `StringIO`, as Rack's own servers give, redefine
-  `IcRack.input`:
+  `RubyWasmIcRack.input`:
 
   ```ruby
-  module IcRack
+  module RubyWasmIcRack
     def self.input(bytes) = StringIO.new(bytes.b)
   end
   ```
@@ -89,7 +89,7 @@ def http_request_update(req) = IcRack.update(APP, req)
 Rack and Roda need four libraries `minimal` lacks: `Encoding::UTF_8` and its
 two siblings, `date` (only because `time` requires it), `strscan` and
 `stringio`. The [`ic_minimal`](../ic_minimal) gem carries pure-Ruby stand-ins
-for them, for a `minimal` canister only. `ic_rack` itself needs none of them.
+for them, for a `minimal` canister only. `ruby_wasm_ic_rack` itself needs none of them.
 
 Carry only the files of Rack your routes load, and check every carried file's
 magic comment: `minimal` knows only `utf-8`, `us-ascii` and `ascii-8bit` by
@@ -107,7 +107,7 @@ traps the install. Change that word to `ascii-8bit`.
 
 ## Development
 
-The gem lives in the ruby_wasm_builder repository, `gems/ic_rack/`. Its specs
+The gem lives in the ruby_wasm_builder repository, `gems/ruby_wasm_ic_rack/`. Its specs
 are in that repository's `spec/gems/`, and run with the builder's suite
 (`bundle exec rspec`), including the 0.7.0 `rack_adapter` and `roda_on_minimal`
 Scripts played with this gem's files in place of the Challenges' own copies.

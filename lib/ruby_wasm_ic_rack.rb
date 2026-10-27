@@ -1,9 +1,9 @@
-# ic_rack: serves a Rack app (anything answering call(env) with
+# ruby_wasm_ic_rack: serves a Rack app (anything answering call(env) with
 # [status, headers, body]) from the IC HTTP gateway's two methods, in a Ruby
 # canister packed by ruby_wasm_builder. Pure Ruby with no dependency, the same
 # on the `minimal` and `full` Builds: it names no standard library, no C
 # extension and no Encoding constant. rack.input is a small reader of its own
-# unless the Application redefines IcRack.input (a StringIO, say).
+# unless the Application redefines RubyWasmIcRack.input (a StringIO, say).
 #
 # Taken from the builder's 0.7.0 Challenges (rack_adapter, roda_on_minimal),
 # which keep their own copies; this gem moves on its own versions.
@@ -13,9 +13,9 @@
 # http_request_update. An app whose GET writes says so with the response
 # header `x-ic-upgrade`, and the query upgrades that too; the header is never
 # sent on.
-require_relative "ic_rack/version"
+require_relative "ruby_wasm_ic_rack/version"
 
-module IcRack
+module RubyWasmIcRack
   SAFE = %w[GET HEAD OPTIONS].freeze
   UPGRADE = "x-ic-upgrade"
 
